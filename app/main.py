@@ -36,8 +36,10 @@ def main():
         sock.close()
     else:
         param = match.group(1)
-        body = f"Content-Type: text/plain\r\n{param}\r\n"
-        response = STATUS_200 + body
+        content_type = "Content-Type: text/plain\r\n"
+        content_length = f"Content-Length: {len(param)}\r\n\r\n"
+        content = f"{param}\r\n"
+        response = STATUS_200 + content_type + content_length + content
         sock.send(response.encode())
         sock.close()
         return
