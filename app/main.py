@@ -31,7 +31,7 @@ def main():
 
         agent = agent.split(":")[-1].strip()
         response = (
-            "HTTP/1.1 200 OK\r\n\r\n"
+            "HTTP/1.1 200 OK\r\n"
             "Content-Type: text/plain\r\n"
             f"Content-Length: {len(agent)}\r\n\r\n"
             f"{agent}\r\n"
