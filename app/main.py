@@ -9,7 +9,7 @@ def get_path(data) -> str:
     return path
 
 
-STATUS_200 = "HTTP/1.1 200 OK\r\n\r\n"
+STATUS_200 = "HTTP/1.1 200 OK\r\n"
 STATUS_404 = "HTTP/1.1 404 Not Found\r\n\r\n"
 
 
