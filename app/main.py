@@ -23,7 +23,12 @@ def main():
     path = get_path(data)
 
     if path == "/user-agent":
-        agent = data.decode().strip("\r\n").split("\r\n")[-2]
+        headers = data.decode().strip("\r\n").split("\r\n")[1:]
+        agent = ""
+        for header in headers:
+            if header.startswith("User-Agent"):
+                agent = header
+
         agent = agent.split(":")[-1].strip()
         response = (
             "HTTP/1.1 200 OK\r\n\r\n"
