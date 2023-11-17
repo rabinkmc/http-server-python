@@ -23,7 +23,7 @@ def main():
     path = get_path(data)
 
     if path == "/":
-        response = STATUS_200
+        response = STATUS_200 + "\r\n"
         sock.send(response.encode())
         sock.close()
         return
