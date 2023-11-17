@@ -22,27 +22,32 @@ def main():
 
     path = get_path(data)
 
-    if path == "/":
+    if path == "/user-agent":
+        agent = data.decode().strip("\r\n").split("\r\n")[-2]
+        agent = agent.split(":")[-1].strip()
+        response = (
+            "HTTP/1.1 200 OK\r\n\r\n"
+            "Content-Type: text/plain\r\n"
+            f"Content-Length: {len(agent)}\r\n\r\n"
+            f"{agent}\r\n"
+        )
+        sock.send(response.encode())
+
+    elif path == "/":
         response = STATUS_200 + "\r\n"
         sock.send(response.encode())
-        sock.close()
-        return
 
-    regex = re.compile(r"/echo/(.+$)")
-    match = regex.match(path)
-    if not match:
-        response = STATUS_404
-        sock.send(response.encode())
-        sock.close()
-    else:
+    elif match := re.match(r"/echo/(.+$)", path):
         param = match.group(1)
         content_type = "Content-Type: text/plain\r\n"
         content_length = f"Content-Length: {len(param)}\r\n\r\n"
         content = f"{param}\r\n"
         response = STATUS_200 + content_type + content_length + content
         sock.send(response.encode())
-        sock.close()
-        return
+    else:
+        response = STATUS_404
+        sock.send(response.encode())
+    sock.close()
 
 
 if __name__ == "__main__":
