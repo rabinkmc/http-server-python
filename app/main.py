@@ -1,26 +1,21 @@
 import socket
-import re
 from threading import Thread
-from time import sleep
 
 STATUS_200 = "HTTP/1.1 200 OK\r\n"
 STATUS_404 = "HTTP/1.1 404 Not Found\r\n\r\n"
 
 
 def handle_request(sock):
-    global counter
     data = sock.recv(128)
     path = get_path(data)
 
     headers = data.decode().strip("\r\n").split("\r\n")[1:]
-    print("start of thread")
     if path == "/user-agent":
         agent = ""
         for header in headers:
             if header.startswith("User-Agent"):
-                agent = header
+                agent = header.split(":")[-1].strip()
 
-        agent = agent.split(":")[-1].strip()
         response = (
             "HTTP/1.1 200 OK\r\n"
             "Content-Type: text/plain\r\n"
@@ -29,8 +24,8 @@ def handle_request(sock):
         )
     elif path == "/":
         response = STATUS_200 + "\r\n"
-    elif match := re.match(r"/echo/(.+$)", path):
-        param = match.group(1)
+    elif path.startswith("/echo/"):
+        param = path[len("/echo/") :]
         content_type = "Content-Type: text/plain\r\n"
         content_length = f"Content-Length: {len(param)}\r\n\r\n"
         content = f"{param}\r\n"
