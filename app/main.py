@@ -9,7 +9,7 @@ STATUS_404 = "HTTP/1.1 404 Not Found\r\n\r\n"
 
 def handle_request(sock):
     data = sock.recv(1024)
-    path = get_path(data)
+    method, path = get_path(data)
 
     headers = data.decode().strip("\r\n").split("\r\n")[1:]
     response = ""
@@ -48,30 +48,36 @@ def handle_request(sock):
         if not file_path or not file_path.is_file():
             response = STATUS_404
         else:
-            with open(file_path, "r") as fp:
-                content = fp.read()
+            if method == "GET":
+                with open(file_path, "r") as fp:
+                    content = fp.read()
 
-            response = (
-                "HTTP/1.1 200 OK\r\n"
-                "Content-Type: application/octet-stream\r\n"
-                f"Content-Length: {len(content)}\r\n\r\n"
-                f"{content}\r\n"
-            )
+                response = (
+                    "HTTP/1.1 200 OK\r\n"
+                    "Content-Type: application/octet-stream\r\n"
+                    f"Content-Length: {len(content)}\r\n\r\n"
+                    f"{content}\r\n"
+                )
+            else:
+                body = data.decode().strip("\r\n").split("\r\n")[-1]
+                with open(file_path, "w") as fp:
+                    content = fp.write(body)
+                response = "HTTP/1.1 201\r\n"
+
     elif path == "/":
         response = STATUS_200 + "\r\n"
     else:
         response = STATUS_404
 
-    print(response, response.encode())
     sock.send(response.encode())
     sock.close()
 
 
-def get_path(data) -> str:
+def get_path(data):
     request = data.decode().split("\r\n")
     head = request[0]
-    path = head.split(" ")[1]
-    return path
+    method, path = head.split(" ")[0:2]
+    return method, path
 
 
 def main():
