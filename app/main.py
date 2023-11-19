@@ -45,10 +45,10 @@ def handle_request(sock):
         if search_dir_path:
             file_path = search_dir_path / filename
 
-        if not file_path or not file_path.is_file():
-            response = STATUS_404
-        else:
-            if method == "GET":
+        if method == "GET":
+            if not file_path or not file_path.is_file():
+                response = STATUS_404
+            else:
                 with open(file_path, "r") as fp:
                     content = fp.read()
 
@@ -58,11 +58,14 @@ def handle_request(sock):
                     f"Content-Length: {len(content)}\r\n\r\n"
                     f"{content}\r\n"
                 )
+        else:
+            if not file_path:
+                response = STATUS_404
             else:
                 body = data.decode().strip("\r\n").split("\r\n")[-1]
                 with open(file_path, "w") as fp:
                     content = fp.write(body)
-                response = "HTTP/1.1 201\r\n"
+                response = "HTTP/1.1 201\r\n\r\n"
 
     elif path == "/":
         response = STATUS_200 + "\r\n"
@@ -81,7 +84,7 @@ def get_path(data):
 
 
 def main():
-    print("Starting http server:")
+    print("Starting http server::")
     server_socket = socket.create_server(("localhost", 4221), reuse_port=True)
 
     while True:
